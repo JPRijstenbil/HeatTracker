@@ -17,20 +17,17 @@ socketio = SocketIO(app)
 powerlevel = 0
 
 def main():
+    detector_thread = threading.Thread(target=detector.run)
+    actuator_thread = threading.Thread(target=actuator.run, args=(detector.q,))
+    app_thread = threading.Thread(target=run_socketio)
 
-    actuator.custom_vel_path()
-    # detector_thread = threading.Thread(target=detector.run)
-    # actuator_thread = threading.Thread(target=actuator.run, args=(detector.q,))
-    # app_thread = threading.Thread(target=run_socketio)
+    app_thread.start()
+    detector_thread.start()
+    actuator_thread.start()
 
-    # app_thread.start()
-    # detector_thread.start()
-    # actuator_thread.start()
-
-    # detector_thread.join()
-    # actuator_thread.join()
-    # app_thread.join()
-
+    detector_thread.join()
+    actuator_thread.join()
+    app_thread.join()
 
 @app.route('/')
 def index():

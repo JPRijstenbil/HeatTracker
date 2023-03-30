@@ -53,5 +53,4 @@ class Actuator():
         v = 0
         self.motor.tmc_uart.write_reg_check(reg.VACTUAL, round(v))
         print(self.motor.get_current_position())
-        # self.motor.set_vactual(vactual=0)
         
