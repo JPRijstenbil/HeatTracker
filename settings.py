@@ -19,3 +19,6 @@ STEPRATIO = (GEARRATIO * MICROSTEP * 200 * FINETUNE) / 360  # steps/rotation
 RESOLUTION = (320, 240)
 PIXELCHANGE_THRESHOLD = 0.3 * 255
 MOVEMENT_THRESHOLD = 20
+
+# Testfolder for images
+IMAGEFOLDER = "/home/pi/Documents/heater/images/"

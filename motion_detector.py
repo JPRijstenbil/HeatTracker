@@ -47,3 +47,6 @@ class MotionDetector(io.BytesIO):
         self.camera.framerate = 2
         self.camera.rotation = 180
         time.sleep(1) 
+
+    def capture_testimage(self):
+        self.camera.capture(settings.IMAGEFOLDER + 'testimage.jpg')
