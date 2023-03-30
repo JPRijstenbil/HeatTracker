@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GPIO Web Controller</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f8f8f8;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 2em;
+        }
+
+        .title {
+        font-size: 4em;
+        margin-top: 5%;
+        font-weight: bold;
+        text-align: center;
+        }
+
+        .slider {
+        width: 60%;
+        margin-top: 5%;
+        font-weight: bold;
+        font-size: 2em;
+        height: 80px;
+        }
+
+        .slider-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 50%;
+        }
+
+        .slider-container div {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 2em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        }
+
+        .slider-container span {
+        font-size: 2em;
+        font-weight: bold;
+        margin-right: 1em;
+        }
+
+        .slider input[type="range"] {
+        -webkit-appearance: none;
+        height: 80px;
+        background-color: transparent;
+        margin: 0;
+        width: 100%;
+        }
+
+        .slider input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        background-color: #fff;
+        border: none;
+        height: 160px;
+        width: 80px;
+        border-radius: 10px;
+        background-color: yellow;
+        border: 5px solid black;
+        margin-top: -40px;
+        }
+
+        .slider input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 20px;
+        cursor: pointer;
+        background-color: #ccc;
+        border-radius: 10px;
+        margin-top: 5%;
+        }
+
+        .slider-value {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 2em;
+        }
+
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            const nervousnessSlider = document.getElementById('nervousness-slider');
+            nervousnessSlider.oninput = () => {
+                socket.emit('update_nervousness', { value: nervousnessSlider.value });
+            };
+
+            const powerSlider = document.getElementById('power-slider');
+            powerSlider.oninput = () => {
+                socket.emit('update_power', { value: powerSlider.value });
+            };
+
+            socket.on('gpio_toggled', data => {
+                document.querySelector('#toggle-button').textContent = data.state ? 'Turn off' : 'Turn on';
+            });
+
+            socket.on('nervousness_updated', data => {
+                nervousnessSlider.value = data.value;
+                document.getElementById('nervousness-value').textContent = data.value;
+            });
+
+            socket.on('power_updated', data => {
+                powerSlider.value = data.value;
+                document.getElementById('power-value').textContent = data.value;
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="title">Heater Controls</div>
+    <div class="slider-container">
+        <div>Power</div>
+        <div class="slider">
+            <input type="range" id="power-slider" min="0" max="3" value="0">
+            <span id="power-value">0</span>
+        </div>
+    </div>
+    <div class="slider-container">
+        <div>Nervousness</div>
+        <div class="slider">
+            <input type="range" id="nervousness-slider" min="1" max="10" value="5">
+            <span id="nervousness-value">5</span>
+        </div>
+    </div>
+</body>
+</html>
+
