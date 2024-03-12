@@ -5,90 +5,112 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <style>
         body {
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f8f8f8;
-        font-family: "Courier New", Courier, monospace;
-        font-size: 2em;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f8f8;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 2em;
         }
 
         .title {
-        font-size: 4em;
-        margin-top: 5%;
-        font-weight: bold;
-        text-align: center;
+            font-size: 4em;
+            font-weight: bold;
+            text-align: center;
+            font-family: "Courier New", Courier, monospace;
         }
 
         .slider {
-        width: 60%;
-        margin-top: 5%;
-        font-weight: bold;
-        font-size: 2em;
-        height: 80px;
+            width: 60%;
+            margin-top: 5%;
+            font-weight: bold;
+            font-size: 2em;
+            height: 80px;
+            text-align: center;
         }
 
         .slider-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 30%;
         }
 
         .slider-container div {
-        width: 100%;
-        text-align: center;
-        font-weight: bold;
-        font-size: 2em;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2em;
+            display: flex;
+            /* justify-content: space-between; */
+            justify-content: center;
+            align-items: center;
         }
 
         .slider-container span {
-        font-size: 2em;
-        font-weight: bold;
-        margin-right: 1em;
+            visibility: none;
+            font-size: 1em;
+            font-weight: bold;
+            margin-right: 8%;
+            margin-left: 2%;
+            margin-top: 3%;
         }
 
         .slider input[type="range"] {
-        -webkit-appearance: none;
-        height: 80px;
-        background-color: transparent;
-        margin: 0;
-        width: 100%;
+            -webkit-appearance: none;
+            background-color: transparent;
+            width: 100%;
         }
 
         .slider input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        background-color: #fff;
-        border: none;
-        height: 160px;
-        width: 80px;
-        border-radius: 10px;
-        background-color: yellow;
-        border: 5px solid black;
-        margin-top: -40px;
+            -webkit-appearance: none;
+            background-color: #fff;
+            height: 160px;
+            width: 80px;
+            border-radius: 10px;
+            background-color: yellow;
+            border: 5px solid black;
+            margin-top: -70px;
         }
 
         .slider input[type="range"]::-webkit-slider-runnable-track {
-        width: 100%;
-        height: 20px;
-        cursor: pointer;
-        background-color: #ccc;
-        border-radius: 10px;
-        margin-top: 5%;
+            width: 100%;
+            height: 20px;
+            cursor: pointer;
+            background-color: #ccc;
+            border-radius: 10px;
+            margin-top: 5%;
+            margin-left: 10%;
+            justify-content: center;
         }
 
         .slider-value {
-        font-family: "Courier New", Courier, monospace;
-        font-size: 2em;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1em;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px; /* Adjust margin as needed */
+        }
+
+        /* Style for individual button */
+        .button {
+            font-size: 2em;
+            margin: 0 10px; /* Adjust margin between buttons as needed */
+            height: 160px;
+            width: 320px;
+            border: 5px solid black;
+            background-color: yellow;
+            cursor: pointer;
+            border-radius: 10px;
         }
 
     </style>
@@ -96,34 +118,59 @@
         document.addEventListener('DOMContentLoaded', () => {
             const socket = io.connect('http://' + document.domain + ':' + location.port);
 
-            const nervousnessSlider = document.getElementById('nervousness-slider');
-            nervousnessSlider.oninput = () => {
-                socket.emit('update_nervousness', { value: nervousnessSlider.value });
+            const positionSlider = document.getElementById('position-slider');
+            const positionValue = document.getElementById('position-value');
+            const powerSlider = document.getElementById('power-slider');
+            const powerValue = document.getElementById('power-value');
+            const buttonManual= document.getElementById('button-manual');
+            const buttonAuto = document.getElementById('button-auto');
+
+            // Sending
+            positionSlider.oninput = () => {
+                socket.emit('update_position', { value: positionSlider.value });
             };
 
-            const powerSlider = document.getElementById('power-slider');
             powerSlider.oninput = () => {
                 socket.emit('update_power', { value: powerSlider.value });
             };
 
-            socket.on('gpio_toggled', data => {
-                document.querySelector('#toggle-button').textContent = data.state ? 'Turn off' : 'Turn on';
+            buttonManual.addEventListener('click', () => {
+                socket.emit('select-mode', {value: 0});
             });
 
-            socket.on('nervousness_updated', data => {
-                nervousnessSlider.value = data.value;
-                document.getElementById('nervousness-value').textContent = data.value;
+            buttonAuto.addEventListener('click', () => {
+                socket.emit('select-mode', {value: 1});
+            });
+
+            // Receiving
+            socket.on('position_updated', data => {
+                positionSlider.value = data.value;
+                positionValue.textContent = data.value;
             });
 
             socket.on('power_updated', data => {
                 powerSlider.value = data.value;
-                document.getElementById('power-value').textContent = data.value;
+                powerValue.textContent = data.value;
+            });
+
+            socket.on('mode-updated', data => {
+                if (data.value == 0) {
+                    buttonManual.style.borderWidth = '10px'; 
+                    buttonAuto.style.borderWidth = '5px'; 
+                } else if (data.value == 1) {
+                    buttonManual.style.borderWidth = `5px`;
+                    buttonAuto.style.borderWidth = `10px`;
+                }
             });
         });
     </script>
 </head>
 <body>
     <div class="title">Heater Controls</div>
+    <div class="button-container">
+        <button class="button" id="button-manual">Manual</button>
+        <button class="button" id="button-auto">Auto</button>
+    </div>
     <div class="slider-container">
         <div>Power</div>
         <div class="slider">
@@ -132,10 +179,10 @@
         </div>
     </div>
     <div class="slider-container">
-        <div>Nervousness</div>
+        <div>Position</div>
         <div class="slider">
-            <input type="range" id="nervousness-slider" min="1" max="10" value="5">
-            <span id="nervousness-value">5</span>
+            <input type="range" id="position-slider" min="0" max="180" value="0">
+            <span id="position-value">0</span>
         </div>
     </div>
 </body>

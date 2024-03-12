@@ -18,7 +18,7 @@ class MotionDetector(io.BytesIO):
         self.init_camera()
         self.q = queue.Queue()
 
-    def run(self):
+    def run(self, cond, shared_data):
         try:
             self.camera.start_recording(self, format='mjpeg', quality=30)
             self.camera.wait_recording(100)
